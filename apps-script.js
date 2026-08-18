@@ -1,6 +1,21 @@
 // Paste this into Google Apps Script (Extensions > Apps Script in your Google Sheet)
 
+// CHANGE THIS to your own secret password
+var SECRET_KEY = 'your-secret-password-here';
+
+function checkAuth(e) {
+  var key = e.parameter.key;
+  if (key !== SECRET_KEY) {
+    return ContentService.createTextOutput(JSON.stringify({error: 'Unauthorized'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  return null;
+}
+
 function doGet(e) {
+  var authError = checkAuth(e);
+  if (authError) return authError;
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
   if (!sheet) {
     sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('Data');
@@ -14,6 +29,9 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  var authError = checkAuth(e);
+  if (authError) return authError;
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
   if (!sheet) {
     sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('Data');
